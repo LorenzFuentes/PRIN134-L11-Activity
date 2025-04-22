@@ -4,6 +4,7 @@ const scoreBoard = document.getElementById('scoreBoard');
 
 let score = 0;
 
+
 function moveTarget() {
   const gameAreaRect = gameArea.getBoundingClientRect();
   const maxX = gameAreaRect.width - target.offsetWidth;
@@ -17,4 +18,19 @@ function moveTarget() {
 }
 
 // Initial target position
-moveTarget();
+
+target.addEventListener('contextmenu', function(event){
+  event.preventDefault();
+  score++;
+  scoreBoard.textContent = `Score: ${score}`;
+  moveTarget();
+});
+
+
+document.addEventListener('keydown', function(event) {
+  if (event.ctrlKey && event.code === 'KeyS') {
+    event.preventDefault(); 
+    score = 0;
+    scoreBoard.textContent = `Score: ${score}`;
+  }
+});
