@@ -1,36 +1,92 @@
 const gameArea = document.getElementById('gameArea');
-const target = document.getElementById('target');
 const scoreBoard = document.getElementById('scoreBoard');
+const setupButton = document.querySelector('.setup');
+const inputField = document.querySelector('input');
 
 let score = 0;
+let circles = [];
+let currentTarget = 1;
 
+function createTarget(number) {
+    const circle = document.createElement('div');
+    circle.textContent = number;
+    circle.classList.add('game-circle');
+    Object.assign(circle.style, {
+        position: 'absolute',
+        width: '50px',
+        height: '50px',
+        backgroundColor: 'red',
+        borderRadius: '50%',
+        cursor: number === 1 ? 'pointer' : 'not-allowed',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontWeight: 'bold',
+        color: '#fff',
+    });
 
-function moveTarget() {
-  const gameAreaRect = gameArea.getBoundingClientRect();
-  const maxX = gameAreaRect.width - target.offsetWidth;
-  const maxY = gameAreaRect.height - target.offsetHeight;
+    circle.dataset.number = number;
 
-  const randomX = Math.floor(Math.random() * maxX);
-  const randomY = Math.floor(Math.random() * maxY);
+    circle.addEventListener('contextmenu', function (event) {
+        event.preventDefault();
+        const num = parseInt(circle.dataset.number, 10);
+        if (num === currentTarget) {
+            circle.remove();
+            currentTarget++;
+            enableNextCircle();
+            scoreBoard.textContent = `Score: ${score}`;
+        }
+    });
 
-  target.style.left = `${randomX}px`;
-  target.style.top = `${randomY}px`;
+    gameArea.appendChild(circle);
+    moveTarget(circle);
+    circles.push(circle);
 }
 
-// Initial target position
+function enableNextCircle() {
+    const next = circles.find(c => parseInt(c.dataset.number, 10) === currentTarget);
+    if (next) {
+        next.style.cursor = 'pointer';
+    } else if (currentTarget > circles.length) {
+        score++;
+        setTimeout(() => resetGame(), 100);
+    }
+}
 
-target.addEventListener('contextmenu', function(event){
-  event.preventDefault();
-  score++;
-  scoreBoard.textContent = `Score: ${score}`;
-  moveTarget();
+function moveTarget(circle) {
+    const gameAreaRect = gameArea.getBoundingClientRect();
+    const maxX = gameAreaRect.width - 50;
+    const maxY = gameAreaRect.height - 50;
+
+    const randomX = Math.floor(Math.random() * maxX);
+    const randomY = Math.floor(Math.random() * maxY);
+
+    circle.style.left = `${randomX}px`;
+    circle.style.top = `${randomY}px`;
+}
+
+function resetGame() {
+    circles.forEach(c => c.remove());
+    circles = [];
+    currentTarget = 1;
+
+    const numberOfCircles = Math.min(5, Math.max(1, parseInt(inputField.value, 10) || 5));
+    
+    for (let i = 1; i <= numberOfCircles; i++) {
+      createTarget(i);
+    }
+}
+
+setupButton.addEventListener('click', function (e) {
+    e.preventDefault();
+    resetGame();
 });
 
-
-document.addEventListener('keydown', function(event) {
-  if (event.ctrlKey && event.code === 'KeyS') {
-    event.preventDefault(); 
-    score = 0;
-    scoreBoard.textContent = `Score: ${score}`;
-  }
+document.addEventListener('keydown', function (event) {
+    if (event.ctrlKey && event.code === 'KeyS') {
+        event.preventDefault();
+        score = 0;
+        currentTarget = 1;
+        scoreBoard.textContent = `Score: ${score}`;
+    }
 });

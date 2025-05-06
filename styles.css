@@ -14,16 +14,9 @@ body {
   height: 60%;
   border: 2px solid #000;
   background-color: #fff;
+  margin-top: 15px;
 }
 
-#target {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  background-color: pink;
-  border-radius: 50%;
-  cursor: pointer;
-}
 
 #scoreBoard {
   margin-top: 20px;
